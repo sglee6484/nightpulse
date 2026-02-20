@@ -8,6 +8,7 @@
 const $ = (id) => document.getElementById(id);
 
 const state = {
+  rafId: 0,
   ready: false,
   playing: false,
   audioCtx: null,
@@ -290,7 +291,7 @@ async function startGame() {
     };
 
     // 루프
-    requestAnimationFrame(tick);
+    state.rafId = requestAnimationFrame(tick);
 
   } catch (err) {
     console.error(err);
@@ -301,14 +302,34 @@ async function startGame() {
 }
 
 function stopGame() {
-  // 오디오 정지
-  try { state.source?.stop?.(); } catch {}
+  // 1) 루프 완전 중단
+  state.playing = false;
+  if (state.rafId) {
+    cancelAnimationFrame(state.rafId);
+    state.rafId = 0;
+  }
+
+  // 2) 예약된 start까지 고려해서 AudioContext를 닫고 새로 만들 준비
+  // (BufferSource는 stop()이 안 먹는 경우가 가끔 있어서, 이게 제일 확실함)
+  try {
+    if (state.source) {
+      try { state.source.onended = null; } catch {}
+      try { state.source.stop(0); } catch {}
+      try { state.source.disconnect(); } catch {}
+    }
+  } catch {}
   state.source = null;
 
-  // 상태 정지
-  state.playing = false;
+  // 오디오 컨텍스트 자체를 닫아버리면 100% 소리 멈춤
+  try {
+    if (state.audioCtx && state.audioCtx.state !== "closed") {
+      state.audioCtx.close();
+    }
+  } catch {}
+  state.audioCtx = null;
+  state.buffer = null; // 다음 Start 때 다시 로드(안정)
 
-  // 화면/노트 정리
+  // 3) 노트/화면 정리
   for (const n of state.notes) {
     if (n.el && n.el.parentNode) n.el.parentNode.removeChild(n.el);
     n.el = null;
@@ -320,6 +341,8 @@ function stopGame() {
   state.hitCount = 0;
   updateHud();
   setJudge("STOPPED");
+
+  // 버튼 상태 복구
   dom.btnStart.disabled = false;
   dom.btnRetry.disabled = false;
 }
@@ -361,7 +384,7 @@ function tick() {
    const spawned = state.notes.reduce((acc, n) => acc + (n.el ? 1 : 0), 0);
    dom.debugLine.textContent = `debug: t=${tSec.toFixed(2)}s, total=${state.totalCount}, spawned=${spawned}`;
   
-   requestAnimationFrame(tick);
+   state.rafId = requestAnimationFrame(tick);
 }
 
 async function init() {
