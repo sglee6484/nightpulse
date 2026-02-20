@@ -29,7 +29,7 @@ const state = {
 const config = {
   judgeLineBottomPx: 90,
   laneHeightPx: 520, // CSS min-height 맞춤
-  noteTravelMs: 1600, // 화면 상단->판정선 도달 시간(연출)
+  noteTravelMs: 900, // 화면 상단->판정선 도달 시간(연출)
   perfectMs: 55,
   goodMs: 110,
   missMs: 160,        // 이 이상은 미스 처리
@@ -48,6 +48,8 @@ const dom = {
   btnCalib: $("btnCalib"),
   laneWrap: $("laneWrap"),
   lanes: Array.from(document.querySelectorAll(".lane")),
+  btnStop: $("btnStop"),
+  debugLine: $("debugLine"),
 };
 
 function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
@@ -260,9 +262,13 @@ async function startGame() {
     if (!state.buffer) {
       state.buffer = await loadAudioBuffer(state.track.audio);
     }
-
+     
     resetRun();
 
+    if (!state.notes || state.notes.length === 0) {
+      alert("노트(notes)가 0개야. data/sample.json의 notes 배열을 확인해줘.");
+    }
+     
     // 오디오 재생
     const source = ctx.createBufferSource();
     source.buffer = state.buffer;
@@ -295,9 +301,27 @@ async function startGame() {
 }
 
 function stopGame() {
-  state.playing = false;
+  // 오디오 정지
   try { state.source?.stop?.(); } catch {}
   state.source = null;
+
+  // 상태 정지
+  state.playing = false;
+
+  // 화면/노트 정리
+  for (const n of state.notes) {
+    if (n.el && n.el.parentNode) n.el.parentNode.removeChild(n.el);
+    n.el = null;
+    n.hit = false;
+  }
+
+  state.score = 0;
+  state.combo = 0;
+  state.hitCount = 0;
+  updateHud();
+  setJudge("STOPPED");
+  dom.btnStart.disabled = false;
+  dom.btnRetry.disabled = false;
 }
 
 function retryGame() {
@@ -332,8 +356,12 @@ function tick() {
     // 유지하되 기본 테두리만
     dom.judgeText.style.borderColor = "rgba(255,255,255,.10)";
   }
-
-  requestAnimationFrame(tick);
+   
+   // 디버그: 현재시간/노트수/스폰된 DOM 수 표시
+   const spawned = state.notes.reduce((acc, n) => acc + (n.el ? 1 : 0), 0);
+   dom.debugLine.textContent = `debug: t=${tSec.toFixed(2)}s, total=${state.totalCount}, spawned=${spawned}`;
+  
+   requestAnimationFrame(tick);
 }
 
 async function init() {
@@ -341,7 +369,8 @@ async function init() {
   dom.btnStart.addEventListener("click", startGame);
   dom.btnRetry.addEventListener("click", retryGame);
   dom.btnCalib.addEventListener("click", calibrate);
-
+  dom.btnStop.addEventListener("click", stopGame);
+   
   await loadTrack();
   setJudge("READY");
 
