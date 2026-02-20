@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Night Pulse (MVP)</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="top">
+      <div class="brand">
+        <div class="logo-dot"></div>
+        <div>
+          <div class="title">Night Pulse</div>
+          <div class="sub">sglee — 2-lane rhythm MVP</div>
+        </div>
+      </div>
+
+      <div class="track">
+        <div class="track-name" id="trackName">Loading...</div>
+        <div class="track-meta" id="trackMeta"></div>
+      </div>
+    </header>
+
+    <main class="stage">
+      <div class="hud">
+        <div class="hud-item">Score <span id="score">0</span></div>
+        <div class="hud-item">Combo <span id="combo">0</span></div>
+        <div class="hud-item">Acc <span id="acc">0%</span></div>
+      </div>
+
+      <div class="lane-wrap" id="laneWrap">
+        <div class="lane" data-lane="0">
+          <div class="judge-line"></div>
+          <div class="lane-label">LEFT (D)</div>
+        </div>
+        <div class="lane" data-lane="1">
+          <div class="judge-line"></div>
+          <div class="lane-label">RIGHT (F)</div>
+        </div>
+
+        <div class="judge-text" id="judgeText">READY</div>
+      </div>
+
+      <div class="controls">
+        <button id="btnStart" class="btn primary">Start</button>
+        <button id="btnRetry" class="btn">Retry</button>
+        <button id="btnCalib" class="btn">Calibrate</button>
+      </div>
+
+      <div class="hint">
+        <div>키보드: <b>D</b> / <b>F</b> · 모바일: 레인 터치</div>
+        <div class="small">URL 예시: <code>?track=sample</code></div>
+      </div>
+    </main>
+
+    <footer class="foot">
+      <div class="small">
+        Tip: 모바일 오디오 지연이 있으면 Calibrate로 오프셋을 조정해.
+      </div>
+    </footer>
+  </div>
+
+  <script src="./game.js"></script>
+</body>
+</html>
