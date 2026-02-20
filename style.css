@@ -159,3 +159,8 @@ body{
 .small{font-size:12px; color:var(--mut)}
 .foot{margin-top:14px; padding-top:10px; border-top:1px solid var(--line)}
 code{color:#dbe0ff}
+
+.btn.danger{
+  border-color: rgba(255,120,120,.45);
+  box-shadow: 0 0 24px rgba(255,120,120,.12);
+}
