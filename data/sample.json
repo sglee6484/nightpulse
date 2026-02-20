@@ -1,0 +1,20 @@
+{
+  "audio": "./assets/audio/sample.mp3",
+  "notes": [
+    { "time": 1.20, "lane": 0 },
+    { "time": 1.55, "lane": 1 },
+    { "time": 2.00, "lane": 0 },
+    { "time": 2.35, "lane": 1 },
+    { "time": 2.80, "lane": 0 },
+
+    { "time": 4.10, "lane": 1 },
+    { "time": 4.45, "lane": 0 },
+    { "time": 4.80, "lane": 1 },
+    { "time": 5.15, "lane": 0 },
+
+    { "time": 7.00, "lane": 0 },
+    { "time": 7.35, "lane": 1 },
+    { "time": 7.70, "lane": 0 },
+    { "time": 8.05, "lane": 1 }
+  ]
+}
